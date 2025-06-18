@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
 
 const checkIfValid = async () => {
     const axiosInstance = axios.create({
-        baseURL: 'https://ult-userauth.onrender.com',
+        baseURL: process.env.ULTIMATE_UTILITY_AUTH_URL,
         withCredentials: true
     });
     
