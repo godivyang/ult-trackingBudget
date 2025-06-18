@@ -2,9 +2,11 @@ const axios = require("axios");
 
 const auth = async (req, res, next) => {
     try {
-        const authHeader = req.header("Authorization");
-        const author = await checkIfValid(authHeader);
-
+        let token = req.cookies.token;
+        
+        if(!token) throw new Error();
+        const author = await checkIfValid();
+        
         if(!author) throw new Error({ error: "Please authenticate." });
 
         req.author = author;
@@ -14,25 +16,19 @@ const auth = async (req, res, next) => {
     }
 }
 
-const checkIfValid = async (token) => {
-    let config = {
-        method: 'get',
-        maxBodyLength: Infinity,
-        url: 'http://localhost:3000/user/isValid',
-        headers: { 
-            'Authorization': token
-        }
-    };
-
-    let response = await axios.request(config)
-    .then((res) => {
-        return res.data;
-    })
-    .catch((e) => {
-        return undefined;
+const checkIfValid = async () => {
+    const axiosInstance = axios.create({
+        baseURL: 'https://ult-userauth.onrender.com',
+        withCredentials: true
     });
-
-    return response;
+    
+    try {
+        const response = await axiosInstance.get("/user/me");
+        console.log("response",response)
+        return response.data;
+    } catch (e) {
+        return undefined;
+    };
 }
 
 module.exports = auth;
