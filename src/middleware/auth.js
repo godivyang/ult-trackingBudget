@@ -3,7 +3,7 @@ const axios = require("axios");
 const auth = async (req, res, next) => {
     try {
         let token = req.cookies.token;
-        
+        console.log(token)
         if(!token) throw new Error();
         const author = await checkIfValid();
         
