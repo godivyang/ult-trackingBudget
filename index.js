@@ -13,17 +13,14 @@ require("./src/db/mongoose");
 const app = express();
 const port = process.env.PORT || 3002;
 
-const allowedOrigins = [
-    "http://localhost:3000",
-    "https://ult-tracking-budget.web.app"
-];
+const allowedOrigin = process.env.TRACKING_BUDGET_FRONTEND_URL;
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps, curl, or Postman)
         // console.log(origin);
         if(!origin) return callback(null, true);
 
-        if(allowedOrigins.includes(origin)) {
+        if(allowedOrigin === origin) {
             return callback(null, true);
         } else {
             return callback(new Error('Not allowed by CORS'));
