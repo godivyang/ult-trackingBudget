@@ -2,11 +2,16 @@ const axios = require("axios");
 
 const auth = async (req, res, next) => {
     try {
-        let token = req.cookies.token;
-        console.log(token)
-        if(!token) throw new Error();
-        const author = await checkIfValid();
+        let token = req.cookies.token, author;
         
+        if(!token) {
+            if(req.body.token) {
+                console.log(token)
+                author = await checkIfValid(req.body.token);
+            } else {
+                throw new Error();
+            }
+        }
         if(!author) throw new Error({ error: "Please authenticate." });
 
         req.author = author;
@@ -16,14 +21,14 @@ const auth = async (req, res, next) => {
     }
 }
 
-const checkIfValid = async () => {
+const checkIfValid = async (token) => {
     const axiosInstance = axios.create({
         baseURL: process.env.ULTIMATE_UTILITY_AUTH_URL,
         withCredentials: true
     });
     
     try {
-        const response = await axiosInstance.get("/user/me");
+        const response = await axiosInstance.get("/user/" + token);
         console.log("response",response)
         return response.data;
     } catch (e) {
