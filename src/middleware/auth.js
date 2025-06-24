@@ -39,7 +39,7 @@ const checkIfValidCode = async (code) => {
 
 const checkIfValidToken = async (token) => {
     try {
-        const response = await axiosInstance.post("/users/me", { token });
+        const response = await axiosInstance.post("/user/me", { token });
         return response.data;
     } catch (e) {
         return undefined;
