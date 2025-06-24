@@ -11,7 +11,7 @@ const cors = require("cors");
 require("./src/db/mongoose");
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 4001;
 
 const allowedOrigin = process.env.TRACKING_BUDGET_FRONTEND_URL;
 app.use(cors({

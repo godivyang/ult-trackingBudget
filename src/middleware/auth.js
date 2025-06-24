@@ -6,7 +6,8 @@ const axiosInstance = axios.create({
 
 const auth = async (req, res, next) => {
     try {
-        let token = req.cookies.token;
+        // let token = req.cookies.token;
+        let token;
         
         if(!token) {
             if(req.body.code) {
@@ -21,6 +22,7 @@ const auth = async (req, res, next) => {
         const user = await checkIfValidToken(token);
         if(!user) throw new Error();
 
+        req.token = token;
         req.user = user;
         next();
     } catch (e) {
@@ -41,6 +43,7 @@ const checkIfValidCode = async (code) => {
 const checkIfValidToken = async (token) => {
     try {
         const response = await axiosInstance.post("/user/me", { token });
+        // console.log(response.data)
         return response.data;
     } catch (e) {
         return undefined;
