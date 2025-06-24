@@ -30,7 +30,7 @@ const auth = async (req, res, next) => {
 const checkIfValidCode = async (code) => {
     try {
         const response = await axiosInstance.post("/sso/crossAppLogin", { code });
-        console.log("response",response)
+        console.log("response",response.data)
         return response.data;
     } catch (e) {
         return undefined;
