@@ -19,6 +19,7 @@ const auth = async (req, res, next) => {
 
         // if(!author) throw new Error({ error: "Please authenticate." });
         user = await checkIfValidToken(token);
+        if(!user) throw new Error();
 
         req.user = user;
         next();
