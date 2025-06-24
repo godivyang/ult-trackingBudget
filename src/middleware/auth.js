@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
         
         if(!token) {
             if(req.body.code) {
-                // console.log(token)
+                console.log(req.body)
                 token = await checkIfValidCode(req.body.code);
             } else {
                 throw new Error();
