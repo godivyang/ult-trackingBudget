@@ -6,8 +6,8 @@ const axiosInstance = axios.create({
 
 const auth = async (req, res, next) => {
     try {
-        // let token = req.cookies.token;
-        let token;
+        let token = req.cookies.token;
+        // let token;
         
         if(!token) {
             if(req.body.code) {
