@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
     try {
         let token = req.cookies.token;
         // let token;
-        console.log("token", token)
+        // console.log("token", token)
         
         if(!token) {
             if(req.body.code) {
@@ -20,11 +20,12 @@ const auth = async (req, res, next) => {
         }
 
         // if(!author) throw new Error({ error: "Please authenticate." });
-        const user = await checkIfValidToken(token);
-        if(!user) throw new Error();
+        const {userName, userId} = await checkIfValidToken(token);
+        if(!userName) throw new Error();
 
         req.token = token;
-        req.user = user;
+        req.userName = userName;
+        req.userId = userId;
         next();
     } catch (e) {
         res.status(401).send({ error: "Please authenticate." });

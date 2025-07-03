@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Category = mongoose.model("Category", {
+const categorySchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -20,5 +20,13 @@ const Category = mongoose.model("Category", {
         required: true
     }
 });
+
+categorySchema.methods.toJSON = function() {
+    let catObject = this.toObject();
+    delete catObject.author;
+    return catObject;
+};
+
+const Category = mongoose.model("Category", categorySchema);
 
 module.exports = Category

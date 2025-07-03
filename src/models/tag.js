@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Tag = mongoose.model("Tag", {
+const tagSchema = mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -20,5 +20,13 @@ const Tag = mongoose.model("Tag", {
         required: true
     }
 });
+
+tagSchema.methods.toJSON = function() {
+    let tagObject = this.toObject();
+    delete tagObject.author;
+    return tagObject;
+};
+
+const Tag = mongoose.model("Tag", tagSchema);
 
 module.exports = Tag;

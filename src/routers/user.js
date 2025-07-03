@@ -10,9 +10,9 @@ const tokenOptions = {
 };
 
 router.post("/user/me", auth, async (req, res) => {
-    console.log("token", req.token);
+    // console.log("user", req.author);
     res.cookie("token", req.token, tokenOptions);
-    res.send(req.user);
+    res.send(req.userName);
 });
 
 router.get("/", async (req, res) => {

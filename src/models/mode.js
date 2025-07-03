@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Mode = mongoose.model("Mode", {
+const modeSchema = mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -20,5 +20,13 @@ const Mode = mongoose.model("Mode", {
         required: true
     }
 });
+
+modeSchema.methods.toJSON = function() {
+    let modeObject = this.toObject();
+    delete modeObject.author;
+    return modeObject;
+};
+
+const Mode = mongoose.model("Mode", modeSchema);
 
 module.exports = Mode

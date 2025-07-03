@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Entity = mongoose.model("Entity", {
+const entitySchema = mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -20,5 +20,13 @@ const Entity = mongoose.model("Entity", {
         required: true
     }
 });
+
+entitySchema.methods.toJSON = function() {
+    let entObject = this.toObject();
+    delete entObject.author;
+    return entObject;
+};
+
+const Entity = mongoose.model("Entity", entitySchema);
 
 module.exports = Entity;
