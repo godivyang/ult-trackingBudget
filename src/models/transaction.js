@@ -107,7 +107,7 @@ transactionSchema.statics.enrichBulk = async function (transactions) {
             categories[t.category] = ((await Category.findById(t.category || null)) || {}).description;
             t.category = categories[t.category];
         }
-        if(modes[t.mode]) return modes[t.mode];
+        if(modes[t.mode]) t.mode = modes[t.mode];
         else {
             modes[t.mode] = ((await Mode.findById(t.mode || null)) || {}).description;
             t.mode = modes[t.mode];
