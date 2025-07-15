@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
     try {
         let token = req.cookies.token;
         // let token;
-        // console.log("token", token)
+        console.log("token", token)
         
         if(!token) {
             if(req.body.code) {
