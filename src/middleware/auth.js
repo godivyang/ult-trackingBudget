@@ -21,12 +21,13 @@ const auth = async (req, res, next) => {
         }
 
         // if(!author) throw new Error({ error: "Please authenticate." });
-        const verifyToken = await checkIfValidToken(token);
+        let verifyToken = await checkIfValidToken(token);
         if(!verifyToken) {
             if(req.body.code) {
                 console.log("Step 2 success", req.body.code)
                 token = await checkIfValidCode(req.body.code);
                 console.log("Step 3 success", token);
+                verifyToken = await checkIfValidToken(token);
             } else {
                 throw new Error();
             }
