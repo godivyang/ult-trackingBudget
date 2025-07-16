@@ -17,9 +17,11 @@ router.post("/transaction", auth, async (req, res) => {
     }
 });
 
-router.get("/transaction", auth, async (req, res) => {
+// used as a getter with filters passed in the body
+router.post("/transaction/filter", auth, async (req, res) => {
     try {
-        let transactions = await Transaction.find({ author: req.userId });
+        const filter = req.body;
+        let transactions = await Transaction.find({ ...filter, author: req.userId }).sort({ date: -1 });
         transactions = await Transaction.enrichBulk(transactions);
         // console.log(transactions)
         res.send(transactions);
