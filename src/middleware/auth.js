@@ -6,51 +6,51 @@ const axiosInstance = axios.create({
 
 const auth = async (req, res, next) => {
     try {
-        let token = req.cookies.token;
-        // let token;
-        // console.log("token", token)
+        let token = req.cookies?.token;
         
-        if(!token) {
+        if(req.body?.code || !token) {
             if(req.body.code) {
-                // console.log("Step 2 success", req.body.code)
                 token = await checkIfValidCode(req.body.code);
-                // console.log("Step 3 success", token);
             } else {
                 throw new Error();
             }
         }
 
-        // if(!author) throw new Error({ error: "Please authenticate." });
         let verifyToken = await checkIfValidToken(token);
+        
         if(!verifyToken) {
             if(req.body.code) {
-                // console.log("Step 2 success", req.body.code)
                 token = await checkIfValidCode(req.body.code);
-                // console.log("Step 3 success", token);
                 verifyToken = await checkIfValidToken(token);
             } else {
                 throw new Error();
             }
         }
-        const {userName, userId} = verifyToken;
-        if(!userName) throw new Error();
+        const {name, _id} = verifyToken;
+        
+        if(!name) throw new Error();
 
         req.token = token;
-        req.userName = userName;
-        req.userId = userId;
+        req.userName = name;
+        req.userId = _id;
         next();
     } catch (e) {
-        res.status(401).send({ error: "Please authenticate." });
+        res.status(401).send({
+            success: false,
+            details: {
+                code: "AUTH_ERROR",
+                message: "Authentication failed!"
+            }
+        });
     }
 }
 
 const checkIfValidCode = async (code) => {
+    // console.log(axiosInstance.defaults.baseURL)
     try {
         const response = await axiosInstance.post("/sso/crossAppLogin", { code });
-        // console.log("response",response.data)
-        return response.data;
+        return response.data.data;
     } catch (e) {
-        // console.log("Step 3 failed")
         return undefined;
     };
 }
@@ -58,10 +58,8 @@ const checkIfValidCode = async (code) => {
 const checkIfValidToken = async (token) => {
     try {
         const response = await axiosInstance.post("/user/me", { token });
-        // console.log("Step 4 success")
-        return response.data;
+        return response.data.data;
     } catch (e) {
-        // console.log("Step 4 failed")
         return undefined;
     }
 }
