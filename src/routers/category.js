@@ -3,6 +3,20 @@ const router = new express.Router();
 const auth = require("../middleware/auth");
 const Category = require("../models/category");
 
+const _defaultCategories = [
+    "Rent", "EMI", "Electricity", "Phone bill", "Internet",
+    "Groceries", "Dining out", "Food delivery",
+    "Cab rides", "Metro fare", "Parking", "Flights",
+    "Clothing", "Accessories", "Electronics",
+    "Medicine", "Gym fees", "Grooming",
+    "Movies", "Subscription", "Books",
+    "Education", "SIP", "Stocks", "Insurance", "Credit card bill",
+    "Home supplies", "Repairs",
+    "Hotels", "Charity", "Gift",
+    "Salary", "Bonus", "Interest", "Refund", "Reimbursement", 
+    "Others"
+];
+
 router.post("/category", auth, async (req, res) => {
     try {
         const category = new Category({
@@ -18,7 +32,17 @@ router.post("/category", auth, async (req, res) => {
 
 router.get("/category", auth, async (req, res) => {
     try {
-        const categories = await Category.find({ author: req.userId });
+        let categories = await Category.find({ author: req.userId });
+        if(categories.length === 0) {
+            const prescribed = await Category.find({ author: "__metadata__", description: req.userId });
+            if(prescribed.length === 0) {
+                _defaultCategories.forEach(async description => {
+                    const cat = new Category({description, author: req.userId});
+                    await cat.save();
+                });
+                categories = await Category.find({ author: req.userId });
+            }
+        }
         res.send(categories);
     } catch (e) {
         res.status(500).send("Error: Categories not found.");

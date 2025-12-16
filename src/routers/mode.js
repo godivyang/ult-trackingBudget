@@ -3,6 +3,10 @@ const router = new express.Router();
 const auth = require("../middleware/auth");
 const Mode = require("../models/mode");
 
+const _defaultModes = [
+    "Bank 1", "Bank 2", "Cash", "Credit card", "UPI"
+];
+
 router.post("/mode", auth, async (req, res) => {
     try {
         const mode = new Mode({
@@ -19,6 +23,16 @@ router.post("/mode", auth, async (req, res) => {
 router.get("/mode", auth, async (req, res) => {
     try {
         const modes = await Mode.find({ author: req.userId });
+        if(modes.length === 0) {
+            const prescribed = await Mode.find({ author: "__metadata__", description: req.userId });
+            if(prescribed.length === 0) {
+                _defaultModes.forEach(async description => {
+                    const mod = new Mode({description, author: req.userId});
+                    await mod.save();
+                });
+                modes = await Mode.find({ author: req.userId });
+            }
+        }
         res.send(modes);
     } catch (e) {
         res.status(500).send(e);
