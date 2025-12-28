@@ -34,14 +34,11 @@ router.get("/category", auth, async (req, res) => {
     try {
         let categories = await Category.find({ author: req.userId });
         if(categories.length === 0) {
-            const prescribed = await Category.find({ author: "__metadata__", description: req.userId });
-            if(prescribed.length === 0) {
-                _defaultCategories.forEach(async description => {
-                    const cat = new Category({description, author: req.userId});
-                    await cat.save();
-                });
-                categories = await Category.find({ author: req.userId });
+            for(const description of _defaultCategories) {
+                const cat = new Category({description, author: req.userId});
+                await cat.save();
             }
+            categories = await Category.find({ author: req.userId });
         }
         res.send(categories);
     } catch (e) {

@@ -24,14 +24,11 @@ router.get("/mode", auth, async (req, res) => {
     try {
         const modes = await Mode.find({ author: req.userId });
         if(modes.length === 0) {
-            const prescribed = await Mode.find({ author: "__metadata__", description: req.userId });
-            if(prescribed.length === 0) {
-                _defaultModes.forEach(async description => {
-                    const mod = new Mode({description, author: req.userId});
-                    await mod.save();
-                });
-                modes = await Mode.find({ author: req.userId });
+            for(const description of _defaultModes) {
+                const mod = new Mode({description, author: req.userId});
+                await mod.save();
             }
+            modes = await Mode.find({ author: req.userId });
         }
         res.send(modes);
     } catch (e) {

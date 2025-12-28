@@ -26,14 +26,11 @@ router.get("/entity", auth, async (req, res) => {
     try {
         const entities = await Entity.find({ author: req.userId });
         if(entities.length === 0) {
-            const prescribed = await Entity.find({ author: "__metadata__", description: req.userId });
-            if(prescribed.length === 0) {
-                _defaultEntities.forEach(async description => {
-                    const ent = new Entity({description, author: req.userId});
-                    await ent.save();
-                });
-                entities = await Entity.find({ author: req.userId });
+            for(const description of _defaultEntities) {
+                const ent = new Entity({description, author: req.userId});
+                await ent.save();
             }
+            entities = await Entity.find({ author: req.userId });
         }
         res.send(entities);
     } catch (e) {
