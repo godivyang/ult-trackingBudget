@@ -83,7 +83,7 @@ const transactionSchema = new mongoose.Schema({
 
 transactionSchema.methods.toJSON = function () {
     let transactionObject = this.toObject();
-    delete transactionObject._id;
+    // delete transactionObject._id;
     delete transactionObject.author;
     return transactionObject;
 }
