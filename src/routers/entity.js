@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Entity = require("../models/entity");
+const {getError, getSuccess} = require("../middleware/handler.js");
 
 const _defaultEntities = [
     "Father", "Mother", "Family", "Friend 1", "Friend 2",
@@ -11,30 +12,65 @@ const _defaultEntities = [
 
 router.post("/entity", auth, async (req, res) => {
     try {
-        const entity = new Entity({
-            description: req.body.description,
-            author: req.userId
-        });
-        await entity.save();
-        res.send(entity);
+        const author = req.userId, count = await Entity.countDocuments({author});
+        if(count >= 400) {
+            res.status(400).send(getError("COUNT_OVERFLOW", "Couldn't add a new Entity. Max limit (400) reached."));
+        } else {
+            const lastEntity = await Entity.find({author}).sort({ order: -1 }).limit(1);
+            const entity = new Entity({ description: req.body.description, order: lastEntity.order + 10, author });
+            await entity.save();
+            res.send(getSuccess({message: "Entity saved successfully!", data: entity}));
+        }
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send(getError({message: "Entity cannot be created."}));
     }
 });
 
 router.get("/entity", auth, async (req, res) => {
     try {
-        const entities = await Entity.find({ author: req.userId });
+        let entities = await Entity.find({ author: req.userId }).sort({ order: 1 });
         if(entities.length === 0) {
+            let order = 10;
             for(const description of _defaultEntities) {
-                const ent = new Entity({description, author: req.userId});
+                const ent = new Entity({description, author: req.userId, order});
                 await ent.save();
+                order += 10;
             }
-            entities = await Entity.find({ author: req.userId });
+            entities = await Entity.find({ author: req.userId }).sort({ order: 1 });
+        } else if(!entities[0].order) {
+            let order = 10;
+            for(const ent of entities) {
+                ent.order = order;
+                await ent.save();
+                order += 10;
+            }
+            entities = await Entity.find({ author: req.userId }).sort({ order: 1 });
         }
-        res.send(entities);
+        res.send(getSuccess({message: "Entities fetched successfully!", data: entities}));
     } catch (e) {
-        res.status(500).send(e);
+        res.status(500).send(getError({code: "NOT_FOUND", message: "Entities not found."}));
+    }
+});
+
+router.post("/entity/updateOrder", auth, async (req, res) => {
+    try {
+        const newOrder = req.body.order, entities = await Entity.find({ author: req.userId }).sort({ order: 1 }),
+              updated = [];
+        for(let i = 0; i < newOrder.length; i++) {
+            let actualIndex = newOrder.indexOf(entities[i]._id.toString());
+            if(actualIndex !== i) {
+                updated.push(i);
+                entities[i].order = (actualIndex + 1) * (-10);
+                await entities[i].save();
+            }
+        }
+        updated.forEach(async i => {
+            entities[i].order *= -1;
+            await entities[i].save();
+        });
+        res.send(getSuccess({message: "Entities rearranged successfully!"}));
+    } catch (e) {
+        res.status(500).send(getError({code: "PROCESS_FAILED", message: "Not able to sort Entities."}));
     }
 });
 

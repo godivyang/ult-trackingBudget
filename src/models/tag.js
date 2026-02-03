@@ -5,21 +5,26 @@ const tagSchema = mongoose.Schema({
         type: String,
         required: true,
         minLength: 1,
-        maxLength: 20,
-        validate: {
-            validator: async function(description) {
-                let tag = await Tag.findOne({ description, author: this.author });
-                if(tag) return false;
-                return true;
-            },
-            message: props => `${props.value} already exist!`
-        }
+        maxLength: 20
+    },
+    order: {
+        type: Number,
+        required: true
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
     }
 });
+
+tagSchema.index(
+  { author: 1, order: 1 },
+  { unique: true }
+);
+tagSchema.index(
+    { author: 1, description: 1 },
+    { unique: true }
+);
 
 tagSchema.methods.toJSON = function() {
     let tagObject = this.toObject();

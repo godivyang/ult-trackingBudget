@@ -10,15 +10,17 @@ const tokenOptions = {
 };
 
 router.get("/user/wakeUltUtl", async (req, res) => {
-    await fetch("https://ult-userauth.onrender.com/");
-    res.send({
-        success: true,
-        data: "",
-        details: {
-            code: "SUCCESS",
-            message: "Ultimate Utility is awake!"
-        }
-    });
+    try {
+        await fetch(process.env.ULTIMATE_UTILITY_AUTH_URL);
+        res.send({
+            success: true,
+            data: "",
+            details: {
+                code: "SUCCESS",
+                message: "Ultimate Utility is awake!"
+            }
+        });
+    } catch (e) {}
 });
 
 router.post("/user/me", auth, async (req, res) => {

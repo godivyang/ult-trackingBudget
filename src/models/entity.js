@@ -5,21 +5,26 @@ const entitySchema = mongoose.Schema({
         type: String,
         required: true,
         minLength: 1,
-        maxLength: 20,
-        validate: {
-            validator: async function(description) {
-                let entity = await Entity.findOne({ description, author: this.author });
-                if(entity) return false;
-                return true;
-            },
-            message: props => `${props.value} already exist!`
-        }
+        maxLength: 20
+    },
+    order: {
+        type: Number,
+        required: true
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
     }
 });
+
+entitySchema.index(
+  { author: 1, order: 1 },
+  { unique: true }
+);
+entitySchema.index(
+    { author: 1, description: 1 },
+    { unique: true }
+);
 
 entitySchema.methods.toJSON = function() {
     let entObject = this.toObject();

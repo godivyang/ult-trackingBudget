@@ -5,21 +5,26 @@ const modeSchema = mongoose.Schema({
         type: String,
         required: true,
         minLength: 1,
-        maxLength: 20,
-        validate: {
-            validator: async function(description) {
-                let mode = await Mode.findOne({ description, author: this.author });
-                if(mode) return false;
-                return true;
-            },
-            message: props => `${props.value} already exist!`
-        }
+        maxLength: 20
+    },
+    order: {
+        type: Number,
+        required: true
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
     }
 });
+
+modeSchema.index(
+  { author: 1, order: 1 },
+  { unique: true }
+);
+modeSchema.index(
+    { author: 1, description: 1 },
+    { unique: true }
+);
 
 modeSchema.methods.toJSON = function() {
     let modeObject = this.toObject();
