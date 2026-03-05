@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Mode = require("../models/mode");
-const {getError, getSuccess} = require("../middleware/handler.js");
+const {getError, getSuccess} = require("../middleware/response.js");
 
 const _defaultModes = [
     "Bank 1", "Bank 2", "Cash", "Credit card", "UPI"

@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Category = require("../models/category");
-const {getError, getSuccess} = require("../middleware/handler.js");
+const {getError, getSuccess} = require("../middleware/response.js");
 
 const _defaultCategories = [
     "Rent", "EMI", "Electricity", "Phone bill", "Internet",

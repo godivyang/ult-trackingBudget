@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Entity = require("../models/entity");
-const {getError, getSuccess} = require("../middleware/handler.js");
+const {getError, getSuccess} = require("../middleware/response.js");
 
 const _defaultEntities = [
     "Father", "Mother", "Family", "Friend 1", "Friend 2",

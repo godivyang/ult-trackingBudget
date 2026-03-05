@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Tag = require("../models/tag");
-const {getError, getSuccess} = require("../middleware/handler.js");
+const {getError, getSuccess} = require("../middleware/response.js");
 
 router.post("/tag", auth, async (req, res) => {
     try {

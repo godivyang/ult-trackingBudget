@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { getError } = require("./response.js");
 const axiosInstance = axios.create({
     baseURL: process.env.ULTIMATE_UTILITY_AUTH_URL,
     withCredentials: true
@@ -6,47 +7,40 @@ const axiosInstance = axios.create({
 
 const auth = async (req, res, next) => {
     try {
-        let token = req.cookies?.token;
+        let token = req.body?.code || req.cookies?.token;
         
-        if(req.body?.code || !token) {
-            if(req.body.code) {
-                token = await checkIfValidCode(req.body.code);
-            } else {
-                throw new Error();
-            }
+        if(!token) throw new Error("No token found.");
+
+        if(req.body?.code) token = await checkIfValidCode(req.body.code);
+
+        let userDetails = await checkIfValidToken(token);
+        
+        if(!userDetails && req.body?.code && req.cookies?.token) {
+            token = req.cookies.token;
+            userDetails = await checkIfValidToken(token);
         }
 
-        let verifyToken = await checkIfValidToken(token);
+        if(!userDetails) throw new Error("Login token expired.");
+
+        const {name, _id} = userDetails;
         
-        if(!verifyToken) {
-            if(req.body.code) {
-                token = await checkIfValidCode(req.body.code);
-                verifyToken = await checkIfValidToken(token);
-            } else {
-                throw new Error();
-            }
-        }
-        const {name, _id} = verifyToken;
-        
-        if(!name) throw new Error();
+        if(!name) throw new Error("Token verified but user not found.");
 
         req.token = token;
         req.userName = name;
         req.userId = _id;
+
         next();
+    
     } catch (e) {
-        res.status(401).send({
-            success: false,
-            details: {
-                code: "AUTH_ERROR",
-                message: "Authentication failed!"
-            }
-        });
+        res.status(401).send(getError({
+            code: "AUTH_ERROR",
+            message: e.message
+        }));
     }
 }
 
 const checkIfValidCode = async (code) => {
-    // console.log(axiosInstance.defaults.baseURL)
     try {
         const response = await axiosInstance.post("/sso/crossAppLogin", { code });
         return response.data.data;
