@@ -15,7 +15,7 @@ router.post("/mode", auth, async (req, res) => {
             res.status(400).send(getError("COUNT_OVERFLOW", "Couldn't add a new Mode of transaction. Max limit (50) reached."));
         } else {
             const lastMode = await Mode.find({author}).sort({ order: -1 }).limit(1);
-            const mode = new Mode({ description: req.body.description, order: lastMode.order + 10, author });
+            const mode = new Mode({ description: req.body.description, group: req.body.group, order: (lastMode[0]?.order + 10) || 10, author });
             await mode.save();
             res.send(getSuccess({message: "Mode of transaction saved successfully!", data: mode}));
         }
@@ -84,7 +84,7 @@ router.delete("/mode/:id", auth, async (req, res) => {
 });
 
 router.patch("/mode/:id", auth, async (req, res) => {
-    const allowed = ["description"];
+    const allowed = ["description","group"];
     const changing = Object.keys(req.body);
     const flag = changing.every((key) => allowed.includes(key));
     if(!flag) res.status(400).send("Invalid key used!");

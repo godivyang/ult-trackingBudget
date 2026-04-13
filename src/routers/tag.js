@@ -11,7 +11,7 @@ router.post("/tag", auth, async (req, res) => {
             res.status(400).send(getError("COUNT_OVERFLOW", "Couldn't add a new Tag. Max limit (500) reached."));
         } else {
             const lastTag = await Tag.find({author}).sort({ order: -1 }).limit(1);
-            const tag = new Tag({ description: req.body.description, order: lastTag.order + 10, author });
+            const tag = new Tag({ description: req.body.description, group: req.body.group, order: (lastTag[0]?.order + 10) || 10, author });
             await tag.save();
             res.send(getSuccess({message: "Tag saved successfully!", data: tag}));
         }
@@ -72,7 +72,7 @@ router.delete("/tag/:id", auth, async (req, res) => {
 });
 
 router.patch("/tag/:id", auth, async (req, res) => {
-    const allowed = ["description"];
+    const allowed = ["description","group"];
     const changing = Object.keys(req.body);
     const flag = changing.every((key) => allowed.includes(key));
     if(!flag) res.status(400).send("Invalid key used!");

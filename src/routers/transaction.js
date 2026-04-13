@@ -2,8 +2,12 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../middleware/auth");
 const Transaction = require("../models/transaction");
+const { getSuccess, getError } = require("../middleware/response");
 
 router.post("/transaction", auth, async (req, res) => {
+// router.post("/transaction", async (req, res) => {
+    // res.send();
+
     try {
         let transaction = new Transaction({
             ...req.body,
@@ -11,9 +15,9 @@ router.post("/transaction", auth, async (req, res) => {
         });
         await transaction.save();
         transaction = await Transaction.enrich(transaction);
-        res.send(transaction);
+        res.send(getSuccess({message: "Transaction saved successfully!", data: transaction}));
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send(getError({message: "Transaction was not saved.", detail: e.message}));
     }
 });
 
@@ -26,7 +30,7 @@ router.post("/transaction/filter", auth, async (req, res) => {
         // console.log(transactions)
         res.send(transactions);
     } catch (e) {
-        console.log(e)
+        // console.log(e)
         res.status(500).send(e);
     }
 });
@@ -50,13 +54,13 @@ router.patch("/transaction/:id", auth, async (req, res) => {
     if(!flag) res.status(400).send("Invalid key used!");
     try {
         let transaction = await Transaction.findOne({ _id: req.params.id, author: req.userId });
-        if(!transaction) return res.status(404).send("Transaction not found");
+        if(!transaction) return res.status(404).send(getError({code: "NOT_FOUND", message:"Transaction not found"}));
         changing.forEach(key => transaction[key] = req.body[key]);
         await transaction.save();
         transaction = await Transaction.enrich(transaction);
         res.send(transaction);
     } catch (e) {
-        res.status(500).send(e);
+        res.status(500).send(getError({message: "Transaction edit failed.", detail: e.message}));
     }
 });
 

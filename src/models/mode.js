@@ -11,6 +11,9 @@ const modeSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    group: {
+        type: String
+    },
     author: {
         type: mongoose.Schema.Types.ObjectId,
         required: true
